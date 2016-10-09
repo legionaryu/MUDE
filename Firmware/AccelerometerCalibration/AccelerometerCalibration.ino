@@ -39,28 +39,45 @@ void loop()
   int deltaMillis = abs(currentMillis - lastMillis);
   lastMillis = currentMillis;
   
-  for(int i=0; i<ANALOGPORTS; i++)
+  //for(int i=0; i<ANALOGPORTS; i++)
   {
+    int i = 1;
     int currentRead = analogRead(analogPorts[i]);
-    lowPassAnalog[i] = lowPassAnalog[i] * sensitivityAnalog + (1-sensitivityAnalog) * currentRead;
+    lowPassAnalog[i] = lowPassAnalog[i] * sensitivityAnalog + (1 - sensitivityAnalog) * currentRead;
     debounceMillis[i] = max(0, debounceMillis[i] - deltaMillis);
-    //if(abs(lowPassAnalog[i] - currentRead) > (thresholdAnalog[i] * lowPassAnalog[i]) && debounceMillis[i] == 0)
-    if(abs(lowPassAnalog[i] - currentRead) > thresholdAnalog[i] && debounceMillis[i] == 0)
+    if(debounceMillis[i] == 0)
     {
-      midiTargetVeloc[i] = LOUD;
-      debounceMillis[i] = debounceTimeMax;
-      //debounceMillis[(i%2==0?i+1:i-1)] = debounceTimeMax;
-      pixels.setPixelColor(i, pixels.Color(0,150,0)); // Moderately bright green color.
+      debounceMillis[i] += 50;
+      Serial.print(i);
+      Serial.print(":\t\t");
+      Serial.print(lowPassAnalog[i]);
+      Serial.print("\t\t");
+      Serial.print(currentRead);
+      Serial.print("\t\t");
+      Serial.print(abs(lowPassAnalog[i] - currentRead));
+      Serial.print("\t\t");
+      Serial.print(thresholdAnalog[i]);
+      if(abs(lowPassAnalog[i] - currentRead) > thresholdAnalog[i])
+      Serial.println("\t\tACTIVE");
+      else
+      Serial.println("\t\tDEACTIVE");
     }
-    else if(debounceMillis[i] == 0)
-    {
-      midiTargetVeloc[i] = MUTE;
-    }
-    if(midiCurrenVeloc[i] != midiTargetVeloc[i])
-    {
-      noteOn(CHANNEL, midiTargetNotes[i], midiTargetVeloc[i]);
-      midiCurrenVeloc[i] = midiTargetVeloc[i];
-    }
+//    if(abs(lowPassAnalog[i] - currentRead) > (thresholdAnalog[i] * lowPassAnalog[i]) && debounceMillis[i] == 0)
+//    {
+//      midiTargetVeloc[i] = LOUD;
+//      debounceMillis[i] = debounceTimeMax;
+//      debounceMillis[(i%2==0?i+1:i-1)] = debounceTimeMax;
+//      pixels.setPixelColor(i, pixels.Color(0,150,0)); // Moderately bright green color.
+//    }
+//    else if(debounceMillis[i] == 0)
+//    {
+//      midiTargetVeloc[i] = MUTE;
+//    }
+//    if(midiCurrenVeloc[i] != midiTargetVeloc[i])
+//    {
+//      noteOn(CHANNEL, midiTargetNotes[i], midiTargetVeloc[i]);
+//      midiCurrenVeloc[i] = midiTargetVeloc[i];
+//    }
   }
   pixels.show();
 }
